@@ -78,9 +78,6 @@ fun TodoListScreen(
     state: TodoListState,
     onAction: (TodoListAction) -> Unit
 ) {
-    val active = state.todos.count { !it.isDone }
-    val total = state.todos.size
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -88,15 +85,15 @@ fun TodoListScreen(
                 title = "Task App",
                 // Null rather than an empty lambda, so the header doesn't reserve
                 // vertical space for a readout that has nothing to report yet.
-                readout = if (!state.isLoading && total > 0) {
+                readout = if (!state.isLoading && state.totalCount > 0) {
                     {
-                        Readout(value = active, label = "ACTIVE", accent = true)
+                        Readout(value = state.activeCount, label = "ACTIVE", accent = true)
                         Text(
                             text = "/",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.outline
                         )
-                        Readout(value = total, label = "TOTAL", accent = false)
+                        Readout(value = state.totalCount, label = "TOTAL", accent = false)
                     }
                 } else null
             )
@@ -186,7 +183,10 @@ private fun SwipeToDeleteItem(
         enableDismissFromStartToEnd = false,
         backgroundContent = {
             val armed = dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
-            val wellColor by animateColorAsState(
+            // Kept as State rather than unwrapped with `by`: reading .value inside
+            // drawBehind defers the read to the draw phase, so the fade redraws
+            // without recomposing this row on every frame.
+            val wellColor = animateColorAsState(
                 targetValue = if (armed) MaterialTheme.colorScheme.errorContainer
                               else Color.Transparent,
                 label = "delete_well"
@@ -194,7 +194,7 @@ private fun SwipeToDeleteItem(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(wellColor)
+                    .drawBehind { drawRect(wellColor.value) }
                     .padding(end = 20.dp),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
@@ -228,7 +228,8 @@ private fun TodoListItem(
 ) {
     // The signature element: a lit status edge running the full height of the panel.
     // Pending tasks emit; completed ones go cold and keep only the bare strip.
-    val edge by animateColorAsState(
+    // Deferred read — see the note in SwipeToDeleteItem.
+    val edge = animateColorAsState(
         targetValue = if (todo.isDone) MaterialTheme.colorScheme.onSurfaceVariant
                       else MaterialTheme.colorScheme.primary,
         label = "status_edge"
@@ -239,16 +240,17 @@ private fun TodoListItem(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .drawBehind {
+                val edgeColor = edge.value
                 val barWidth = 3.dp.toPx()
                 if (!todo.isDone) {
                     for (i in 3 downTo 1) {
                         drawRect(
-                            color = edge.copy(alpha = 0.10f / i),
+                            color = edgeColor.copy(alpha = 0.10f / i),
                             size = Size(barWidth * (1f + i * 1.7f), size.height)
                         )
                     }
                 }
-                drawRect(color = edge, size = Size(barWidth, size.height))
+                drawRect(color = edgeColor, size = Size(barWidth, size.height))
             }
             .clickable(onClick = onClick)
             .padding(start = 14.dp, end = 16.dp, top = 6.dp, bottom = 6.dp),
@@ -278,7 +280,8 @@ private fun StatusNode(
     onToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val tint by animateColorAsState(
+    // Deferred read — see the note in SwipeToDeleteItem.
+    val tint = animateColorAsState(
         targetValue = if (isDone) MaterialTheme.colorScheme.onSurfaceVariant
                       else MaterialTheme.colorScheme.primary,
         label = "status_node"
@@ -294,21 +297,22 @@ private fun StatusNode(
         contentAlignment = Alignment.Center
     ) {
         Canvas(Modifier.size(22.dp)) {
+            val nodeTint = tint.value
             val stroke = 1.5.dp.toPx()
-            drawRect(color = tint, style = Stroke(width = stroke))
+            drawRect(color = nodeTint, style = Stroke(width = stroke))
             if (isDone) {
                 val inset = size.width * 0.28f
                 val pivotX = size.width * 0.44f
                 val pivotY = size.height - inset
                 drawLine(
-                    color = tint,
+                    color = nodeTint,
                     start = Offset(inset, size.height * 0.52f),
                     end = Offset(pivotX, pivotY),
                     strokeWidth = stroke,
                     cap = StrokeCap.Square
                 )
                 drawLine(
-                    color = tint,
+                    color = nodeTint,
                     start = Offset(pivotX, pivotY),
                     end = Offset(size.width - inset, inset),
                     strokeWidth = stroke,
@@ -352,6 +356,8 @@ private fun TodoListScreenPreview() {
                     TodoUi(2, "Walk the dog", true),
                     TodoUi(3, "Call dentist", false)
                 ),
+                activeCount = 2,
+                totalCount = 3,
                 isLoading = false
             ),
             onAction = {}

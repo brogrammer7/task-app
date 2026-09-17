@@ -1,5 +1,6 @@
 package com.example.taskapp.todo.presentation.list
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskapp.core.domain.onSuccess
@@ -16,8 +17,18 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * [@Stable] because [todos] is a `List`, which the Compose compiler treats as
+ * unstable — it is an interface, so the implementation could be mutable.
+ *
+ * The counts are stored rather than computed on read: deriving them in the screen
+ * would re-run the fold on every recomposition, and derivation is the ViewModel's job.
+ */
+@Stable
 data class TodoListState(
     val todos: List<TodoUi> = emptyList(),
+    val activeCount: Int = 0,
+    val totalCount: Int = 0,
     val isLoading: Boolean = true
 )
 
@@ -46,9 +57,14 @@ class TodoListViewModel @Inject constructor(
     init {
         dataSource.getTodos()
             .onEach { todos ->
-                _state.update {
-                    it.copy(
-                        todos = todos.map { todo -> TodoUi(id = todo.id, title = todo.title, isDone = todo.isDone) },
+                val todoUis = todos.map { todo ->
+                    TodoUi(id = todo.id, title = todo.title, isDone = todo.isDone)
+                }
+                _state.update { state ->
+                    state.copy(
+                        todos = todoUis,
+                        activeCount = todoUis.count { todoUi -> !todoUi.isDone },
+                        totalCount = todoUis.size,
                         isLoading = false
                     )
                 }
