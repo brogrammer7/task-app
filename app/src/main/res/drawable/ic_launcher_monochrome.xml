@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Adaptive icon foreground: the app's status node, the control you tap to complete
-    a task. The bevelled corners are the same cut as the add-task button, which is
-    what keeps this from reading as a generic checkbox.
-
-    Geometry is a 48x48 mark centred in the 108 viewport. Its furthest corner sits
-    ~34 units from centre, inside the 36-unit radius a circular mask preserves.
+    Themed-icon layer (Android 13+). The system reads only the alpha channel here and
+    tints it with the user's wallpaper palette, so the mark is drawn flat — no cyan,
+    no bloom. Same geometry as the foreground so the silhouette stays identical.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -13,18 +10,16 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Bevelled square: top-left and bottom-right corners cut, the others sharp. -->
     <path
         android:pathData="M41,30 L78,30 L78,67 L67,78 L30,78 L30,41 Z"
-        android:strokeColor="#3DF5FF"
+        android:strokeColor="#FFFFFFFF"
         android:strokeWidth="5"
         android:strokeLineJoin="miter"
         android:fillColor="#00000000" />
 
-    <!-- The check, struck at the same proportions as the in-app status node. -->
     <path
         android:pathData="M43.4,55 L51.1,64.6 L64.6,43.4"
-        android:strokeColor="#3DF5FF"
+        android:strokeColor="#FFFFFFFF"
         android:strokeWidth="5"
         android:strokeLineCap="square"
         android:strokeLineJoin="miter"

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TaskApp" parent="android:Theme.Material.Light.NoActionBar" />
+    <!--
+        Dark base with an explicit window background. Without this the app flashes a
+        white frame between launch and the first Compose frame, which is jarring
+        against a near-black UI.
+    -->
+    <style name="Theme.TaskApp" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/void_navy</item>
+    </style>
 </resources>
