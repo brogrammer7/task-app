@@ -1,15 +1,86 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# ---------------------------------------------------------------------------
+# Gradle
+# ---------------------------------------------------------------------------
+.gradle/
+build/
+captures/
+.cxx/
+.externalNativeBuild/
+
+# Machine-specific SDK path. Never commit this - it breaks every other clone.
 local.properties
+
+# ---------------------------------------------------------------------------
+# IntelliJ / Android Studio
+#
+# The whole .idea/ directory is ignored rather than the handful of files the
+# old template listed. Android Studio adds new files here with every release
+# (deploymentTargetSelector.xml, appInsightsSettings.xml, and so on), so a
+# whitelist goes stale and the junk creeps back in.
+# ---------------------------------------------------------------------------
+.idea/
+*.iml
+
+# ---------------------------------------------------------------------------
+# Kotlin
+# ---------------------------------------------------------------------------
+.kotlin/
+
+# ---------------------------------------------------------------------------
+# Build artefacts
+# ---------------------------------------------------------------------------
+*.apk
+*.aab
+*.aar
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+
+# ---------------------------------------------------------------------------
+# Signing material and secrets
+#
+# These are ignored deliberately. If you ever add a release keystore, back it
+# up somewhere outside the repo - losing it means you cannot ship an update to
+# an existing Play listing.
+# ---------------------------------------------------------------------------
+*.jks
+*.keystore
+keystore.properties
+google-services.json
+*.p12
+.env
+
+# ---------------------------------------------------------------------------
+# Logs, profiling and crash dumps
+# ---------------------------------------------------------------------------
+*.log
+*.hprof
+hs_err_pid*
+
+# ---------------------------------------------------------------------------
+# Lint
+# ---------------------------------------------------------------------------
+lint/intermediates/
+lint/generated/
+lint/outputs/
+lint/tmp/
+lint/reports/
+
+# ---------------------------------------------------------------------------
+# Tooling
+#
+# Only the local override is ignored - .claude/settings.json is shared config
+# and should stay in version control if you add one.
+# ---------------------------------------------------------------------------
+.claude/settings.local.json
+
+# ---------------------------------------------------------------------------
+# OS cruft
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
